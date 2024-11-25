@@ -4,21 +4,22 @@ declare(strict_types=1);
 
 namespace Tempest\CommandBus;
 
+use Tempest\Container\Container;
 use Tempest\Core\Discovery;
-use Tempest\Core\DiscoveryLocation;
-use Tempest\Core\IsDiscovery;
+use Tempest\Core\HandlesDiscoveryCache;
 use Tempest\Reflection\ClassReflector;
+use Tempest\Reflection\MethodReflector;
 
-final class CommandBusDiscovery implements Discovery
+final readonly class CommandBusDiscovery implements Discovery
 {
-    use IsDiscovery;
+    use HandlesDiscoveryCache;
 
     public function __construct(
-        private readonly CommandBusConfig $commandBusConfig,
+        private CommandBusConfig $commandBusConfig,
     ) {
     }
 
-    public function discover(DiscoveryLocation $location, ClassReflector $class): void
+    public function discover(ClassReflector $class): void
     {
         foreach ($class->getPublicMethods() as $method) {
             $commandHandler = $method->getAttribute(CommandHandler::class);
@@ -39,18 +40,23 @@ final class CommandBusDiscovery implements Discovery
                 continue;
             }
 
-            $this->discoveryItems->add($location, [$commandHandler, $type->getName(), $method]);
-        }
-    }
-
-    public function apply(): void
-    {
-        foreach ($this->discoveryItems as [$commandHandler, $commandName, $method]) {
             $this->commandBusConfig->addHandler(
                 commandHandler: $commandHandler,
-                commandName: $commandName,
+                commandName: $type->getName(),
                 handler: $method,
             );
         }
+    }
+
+    public function createCachePayload(): string
+    {
+        return serialize($this->commandBusConfig->handlers);
+    }
+
+    public function restoreCachePayload(Container $container, string $payload): void
+    {
+        $handlers = unserialize($payload, ['allowed_classes' => [CommandHandler::class, MethodReflector::class]]);
+
+        $this->commandBusConfig->handlers = $handlers;
     }
 }

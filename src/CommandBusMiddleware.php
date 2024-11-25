@@ -6,5 +6,5 @@ namespace Tempest\CommandBus;
 
 interface CommandBusMiddleware
 {
-    public function __invoke(object $command, CommandBusMiddlewareCallable $next): void;
+    public function __invoke(object $command, callable $next): void;
 }
