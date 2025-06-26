@@ -6,7 +6,7 @@ namespace Tempest\CommandBus;
 
 use Exception;
 
-final class CommandHandlerNotFound extends Exception
+final class CommandHandlerWasNotFound extends Exception
 {
     public function __construct(object $command)
     {
