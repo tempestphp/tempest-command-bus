@@ -7,10 +7,10 @@ namespace Tempest\CommandBus;
 use Exception;
 use Tempest\Reflection\MethodReflector;
 
-final class CommandHandlerAlreadyExists extends Exception
+final class CommandHandlerWasAlreadyRegistered extends Exception
 {
     public function __construct(string $commandName, MethodReflector $new, MethodReflector $existing)
     {
-        parent::__construct("Cannot add handler {$new->getShortName()}, {$existing->getShortName()} already handles {$commandName}.");
+        parent::__construct("Cannot add handler {$new->getName()}, {$existing->getName()} already handles {$commandName}.");
     }
 }

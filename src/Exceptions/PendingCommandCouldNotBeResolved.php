@@ -6,7 +6,7 @@ namespace Tempest\CommandBus\Exceptions;
 
 use Exception;
 
-final class CouldNotResolveCommand extends Exception
+final class PendingCommandCouldNotBeResolved extends Exception
 {
     public function __construct(
         public string $uuid,
